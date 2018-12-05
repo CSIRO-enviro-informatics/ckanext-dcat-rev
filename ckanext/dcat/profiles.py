@@ -827,7 +827,7 @@ class EuropeanDCATAPProfile(RDFProfile):
                 ('is_version_of', DCT.isVersionOf),
                 ('source', DCT.source),
                 ('sample', ADMS.sample),
-                ('select', DCT.creator)
+                ('creator_org', DCT.creator)
                 ):
             values = self._object_value_list(dataset_ref, predicate)
             if values:
@@ -1022,7 +1022,7 @@ class EuropeanDCATAPProfile(RDFProfile):
             ('is_version_of', DCT.isVersionOf, None, URIRefOrLiteral),
             ('source', DCT.source, None, Literal),
             ('sample', ADMS.sample, None, Literal),
-            ('select', DCT.creator, None, URIRef)
+            ('creator_org', DCT.creator, None, URIRef)
         ]
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, items)
 

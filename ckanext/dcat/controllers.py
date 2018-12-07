@@ -87,9 +87,11 @@ class DCATController(BaseController):
 
             replace = ''
             id_creator = result[index_start+1:index_end-1]
-            for org in helpers.organizations_available('create_dataset'):
-                if org['id'] == id_creator:
-                    replace = '<' + str(toolkit.request.host_url) + '/organization/' + str(org['name']) + '>'
+            replace = '<' + str(toolkit.request.host_url) + '/organization/' + str(helpers.get_organization(id_creator)['name']) + '>'
+            # raise Exception(replace)
+            # for org in helpers.organizations_available('create_dataset'):
+            #     if org['id'] == id_creator:
+            #         replace = '<' + str(toolkit.request.host_url) + '/organization/' + str(org['name']) + '>'
 
             result = result[:index_start] + replace + result[index_end:]
 

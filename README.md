@@ -10,6 +10,11 @@ This extension provides plugins that allow CKAN to expose and consume metadata f
 
 It also offers other features related to Semantic Data like exposing the necessary markup to get your datasets indexed in [Google Dataset Search](https://toolbox.google.com/datasetsearch).
 
+## Modifications
+
+
+## Contact
+
 
 ## Contents
 

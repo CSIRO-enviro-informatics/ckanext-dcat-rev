@@ -11,6 +11,20 @@ This extension provides plugins that allow CKAN to expose and consume metadata f
 It also offers other features related to Semantic Data like exposing the necessary markup to get your datasets indexed in [Google Dataset Search](https://toolbox.google.com/datasetsearch).
 
 
+## Modifications
+
+- Added `dct:creator` mapping to a CKAN field called `creator_org` with an `rdflib.URIRef` value in `ckanext/dcat/profiles.py`.
+- Added an extra parsing step in `ckanext/dcat/controllers.py` called `dcat_transform_creator()` which changes the UUID value of creator_org to the more human-readable version. This is fetched from the CKAN database object. It serialises the value to a resolvable URL before delivering the content back to the client. 
+
+
+## Contact
+
+**Edmond Chuc**  
+*Software engineer*  
+edmond.chuc@csiro.au  
+CSIRO Land and Water, Environmental Informatics Group  
+
+
 ## Contents
 
 - [Overview](#overview)

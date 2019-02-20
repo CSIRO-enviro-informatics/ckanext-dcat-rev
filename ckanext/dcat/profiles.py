@@ -16,9 +16,9 @@ from geomet import wkt, InvalidGeoJSONException
 from ckan.model.license import LicenseRegister
 from ckan.plugins import toolkit
 from ckan.lib.munge import munge_tag
-from ckan.lib.helpers import url_for
+from ckan.lib.helpers import url_for, get_organization
 
-from ckanext.dcat.utils import resource_uri, publisher_uri_from_dataset_dict, DCAT_EXPOSE_SUBCATALOGS, DCAT_CLEAN_TAGS
+from ckanext.dcat.utils import resource_uri, publisher_uri_from_dataset_dict, DCAT_EXPOSE_SUBCATALOGS, DCAT_CLEAN_TAGS, org_uri_from_dataset_dict
 
 DCT = Namespace("http://purl.org/dc/terms/")
 DCAT = Namespace("http://www.w3.org/ns/dcat#")
@@ -827,7 +827,6 @@ class EuropeanDCATAPProfile(RDFProfile):
                 ('is_version_of', DCT.isVersionOf),
                 ('source', DCT.source),
                 ('sample', ADMS.sample),
-                ('creator_org', DCT.creator)
                 ):
             values = self._object_value_list(dataset_ref, predicate)
             if values:
@@ -1022,7 +1021,6 @@ class EuropeanDCATAPProfile(RDFProfile):
             ('is_version_of', DCT.isVersionOf, None, URIRefOrLiteral),
             ('source', DCT.source, None, Literal),
             ('sample', ADMS.sample, None, Literal),
-            ('creator_org', DCT.creator, None, URIRef)
         ]
         self._add_list_triples_from_dict(dataset_dict, dataset_ref, items)
 
@@ -1058,39 +1056,69 @@ class EuropeanDCATAPProfile(RDFProfile):
                 _type=URIRef, value_modifier=self._add_mailto
             )
 
-        # Publisher
-        if any([
-            self._get_dataset_value(dataset_dict, 'publisher_uri'),
-            self._get_dataset_value(dataset_dict, 'publisher_name'),
-            dataset_dict.get('organization'),
-        ]):
-
-            publisher_uri = publisher_uri_from_dataset_dict(dataset_dict)
-            if publisher_uri:
-                publisher_details = CleanedURIRef(publisher_uri)
+        # Creator
+        if 'creator_org' in dataset_dict:
+            creator_id = org_uri_from_dataset_dict(dataset_dict, 'creator_org')
+            
+            if creator_id:
+                creator_uri = CleanedURIRef(creator_id)
             else:
-                # No organization nor publisher_uri
-                publisher_details = BNode()
+                creator_uri = BNode()
+            
+            g.add((creator_uri, RDF.type, FOAF.Organization))
+            g.add((dataset_ref, DCT.creator, creator_uri))
 
-            g.add((publisher_details, RDF.type, FOAF.Organization))
-            g.add((dataset_ref, DCT.publisher, publisher_details))
+            creator_title = get_organization(dataset_dict['creator_org'])['title']
+            g.add((creator_uri, FOAF.name, Literal(creator_title)))
 
-            publisher_name = self._get_dataset_value(dataset_dict, 'publisher_name')
-            if not publisher_name and dataset_dict.get('organization'):
-                publisher_name = dataset_dict['organization']['title']
+        # Publisher
+        if 'owner_org' in dataset_dict:
+            owner_id = org_uri_from_dataset_dict(dataset_dict, 'owner_org')
+            
+            if owner_id:
+                owner_uri = CleanedURIRef(owner_id)
+            else:
+                owner_uri = BNode()
+            
+            g.add((owner_uri, RDF.type, FOAF.Organization))
+            g.add((dataset_ref, DCT.publisher, owner_uri))
 
-            g.add((publisher_details, FOAF.name, Literal(publisher_name)))
-            # TODO: It would make sense to fallback these to organization
-            # fields but they are not in the default schema and the
-            # `organization` object in the dataset_dict does not include
-            # custom fields
-            items = [
-                ('publisher_email', FOAF.mbox, None, Literal),
-                ('publisher_url', FOAF.homepage, None, URIRef),
-                ('publisher_type', DCT.type, None, URIRefOrLiteral),
-            ]
+            owner_title = get_organization(dataset_dict['owner_org'])['title']
+            g.add((owner_uri, FOAF.name, Literal(owner_title)))
 
-            self._add_triples_from_dict(dataset_dict, publisher_details, items)
+        ### Original Publisher code
+        # if any([
+        #     self._get_dataset_value(dataset_dict, 'publisher_uri'),
+        #     self._get_dataset_value(dataset_dict, 'publisher_name'),
+        #     dataset_dict.get('organization'),
+        # ]):
+
+        #     publisher_uri = publisher_uri_from_dataset_dict(dataset_dict)
+        #     if publisher_uri:
+        #         publisher_details = CleanedURIRef(publisher_uri)
+        #     else:
+        #         # No organization nor publisher_uri
+        #         publisher_details = BNode()
+
+        #     g.add((publisher_details, RDF.type, FOAF.Organization))
+        #     g.add((dataset_ref, DCT.publisher, publisher_details))
+
+        #     publisher_name = self._get_dataset_value(dataset_dict, 'publisher_name')
+        #     if not publisher_name and dataset_dict.get('organization'):
+        #         publisher_name = dataset_dict['organization']['title']
+
+        #     g.add((publisher_details, FOAF.name, Literal(publisher_name)))
+        #     # TODO: It would make sense to fallback these to organization
+        #     # fields but they are not in the default schema and the
+        #     # `organization` object in the dataset_dict does not include
+        #     # custom fields
+        #     items = [
+        #         ('publisher_email', FOAF.mbox, None, Literal),
+        #         ('publisher_url', FOAF.homepage, None, URIRef),
+        #         ('publisher_type', DCT.type, None, URIRefOrLiteral),
+        #     ]
+
+        #     self._add_triples_from_dict(dataset_dict, publisher_details, items)
 
         # Temporal
         start = self._get_dataset_value(dataset_dict, 'temporal_start')

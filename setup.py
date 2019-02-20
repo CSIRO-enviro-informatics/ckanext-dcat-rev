@@ -41,7 +41,8 @@ setup(
     test_rdf_exception_harvester=ckanext.dcat.tests.test_harvester:TestRDFExceptionHarvester
 
     [ckan.rdf.profiles]
-    euro_dcat_ap=ckanext.dcat.profiles:EuropeanDCATAPProfile
+    gsq_dataset=ckanext.dcat.profiles:GSQDatasetProfile
+    gsq_borehole=ckanext.dcat.profiles:GSQBoreholeProfile
     schemaorg=ckanext.dcat.profiles:SchemaOrgProfile
 
     [paste.paster_command]

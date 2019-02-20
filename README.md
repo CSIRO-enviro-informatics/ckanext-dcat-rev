@@ -11,10 +11,19 @@ This extension provides plugins that allow CKAN to expose and consume metadata f
 It also offers other features related to Semantic Data like exposing the necessary markup to get your datasets indexed in [Google Dataset Search](https://toolbox.google.com/datasetsearch).
 
 
-## Modifications
+## Available Profiles
+Usage example: `http://gsq.cat/dataset/example-borehole.ttl?profiles=gsq_borehole,gsq_dataset`
 
-- Added `dct:creator` mapping to a CKAN field called `creator_org` with an `rdflib.URIRef` value in `ckanext/dcat/profiles.py`.
-- Added an extra parsing step in `ckanext/dcat/controllers.py` called `dcat_transform_creator()` which changes the UUID value of creator_org to the more human-readable version. This is fetched from the CKAN database object. It serialises the value to a resolvable URL before delivering the content back to the client. 
+- gsq_dataset - https://github.com/CSIRO-enviro-informatics/gsq-dataset-profile
+- gsq_borehole - https://github.com/CSIRO-enviro-informatics/gsq-borehole-profile
+
+
+### Notes and Tips
+- The custom Borehole schema does not allow for multiple `:operators` in the `borehole.json` schema.
+- Profiles are declared in `setup.py`'s entry_point.
+    - Changes to `setup.py` will not update in development mode unless you run `python setup.py develop` in your virtualenv.
+- Default profile setting are in `processors.py` and the different profile classes are in `profiles.py`. 
+- The `RDFProfile.graph_from_dataset()` method is where you add triples to an rdflib graph. 
 
 
 ## Contact

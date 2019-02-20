@@ -70,34 +70,6 @@ class DCATController(BaseController):
         except toolkit.ValidationError, e:
             toolkit.abort(409, str(e))
 
-
-    def dcat_transform_creator(self, result):
-        """
-        If the 'dct:creator' property exists, replace its value with a more human-readable version as well as making it a resolvable URL.
-        """
-        target = 'dct:creator'
-
-        if target in result:
-            n = len(target)+1
-            index_start = result.find(target) + n
-            value_front = result[:index_start]
-            
-            index_end = result.find(';', index_start) - 1
-            value_back = result[index_end:]
-
-            replace = ''
-            id_creator = result[index_start+1:index_end-1]
-            replace = '<' + str(toolkit.request.host_url) + '/organization/' + str(helpers.get_organization(id_creator)['name']) + '>'
-            # raise Exception(replace)
-            # for org in helpers.organizations_available('create_dataset'):
-            #     if org['id'] == id_creator:
-            #         replace = '<' + str(toolkit.request.host_url) + '/organization/' + str(org['name']) + '>'
-
-            result = result[:index_start] + replace + result[index_end:]
-
-        return result
-
-
     def read_dataset(self, _id, _format=None):
 
         if not _format:
@@ -121,8 +93,6 @@ class DCATController(BaseController):
                 'format': _format, 'profiles': _profiles})
         except toolkit.ObjectNotFound:
             toolkit.abort(404)
-
-        result = self.dcat_transform_creator(result)
 
         return result
 

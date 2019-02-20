@@ -15,6 +15,8 @@ except ImportError:
 from ckan import model
 import ckan.plugins.toolkit as toolkit
 
+from ckan.lib import helpers
+
 _ = toolkit._
 
 log = logging.getLogger(__name__)
@@ -205,6 +207,14 @@ def resource_uri(resource_dict):
         uri = '{0}/dataset/{1}/resource/{2}'.format(catalog_uri().rstrip('/'),
                                                     dataset_id,
                                                     resource_dict['id'])
+
+    return uri
+
+
+def org_uri_from_dataset_dict(dataset_dict, field_name):
+    """Get the human-readable URI of a catalogue organization in the CKAN dataset_dict based on the field_name."""
+    uri = '{0}/organization/{1}'.format(catalog_uri().rstrip('/'),
+                                                helpers.get_organization(dataset_dict[field_name])['name'])
 
     return uri
 
